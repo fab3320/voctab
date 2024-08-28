@@ -1,30 +1,27 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
-import { extract_flashcard } from './utils/excelReader.js'; // Importation de la fonction
+import extract_flashcard from './utils/extractvoc.js';
 
 export default function App() {
-    const [cellA1, setCellA1] = useState(null);
-    const [cellB1, setCellB1] = useState(null);
+    const [headers, setHeaders] = useState('');
 
     useEffect(() => {
-        const loadFlashcards = async () => {
+        const fetchHeaders = async () => {
             try {
-                const { cellA1, cellB1 } = await extract_flashcard(); // Obtenir les valeurs A1 et B1
-                setCellA1(cellA1);
-                setCellB1(cellB1);
+                const result = await extract_flashcard();
+                setHeaders(result.headers.join(', ')); // Convertit les en-têtes en une chaîne lisible
             } catch (error) {
-                console.error("Erreur lors du chargement des flashcards :", error);
+                console.error("Erreur lors de l'extraction des en-têtes :", error);
             }
         };
 
-        loadFlashcards();
+        fetchHeaders();
     }, []);
 
     return (
         <View style={styles.container}>
-            <Text>Okay okay le but maintenant c'est d'afficher la cellule A1 ici ==> {cellA1}</Text>
-            <Text>Puis la cellule B1 ici ==> {cellB1}</Text>
+            <Text>Les en-têtes sont : {headers}</Text>
             <StatusBar style="auto" />
         </View>
     );
@@ -36,5 +33,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         alignItems: 'center',
         justifyContent: 'center',
+        padding: 20,
     },
 });
