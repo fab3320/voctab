@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
-import extract_flashcard from './utils/extractvoc.js';
+import extract_flashcard from './utils/extractvoc2.js';
 
 export default function App() {
     const [headers, setHeaders] = useState('');
@@ -21,7 +21,7 @@ export default function App() {
 
     return (
         <View style={styles.container}>
-            <Text>Les en-têtes sont : {headers}</Text>
+            <Text>Les en-têtes sont : setHeaders</Text>
             <StatusBar style="auto" />
         </View>
     );

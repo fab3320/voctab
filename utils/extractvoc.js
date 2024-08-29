@@ -2,7 +2,7 @@ const fs = require('fs').promises;
 const xlsx = require('xlsx');
 
 const path_to_excel = "../base_voc/voc.xlsx";
-//test 3 commit
+
 const extract_flashcard = async () => {
     try {
         const workbook = xlsx.readFile(path_to_excel);
