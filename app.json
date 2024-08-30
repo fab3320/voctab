@@ -22,6 +22,17 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "expo-asset",
+        {
+          "assets": ["./assets/base_voc/voc.html"]
+        }
+      ]
+    ],
+    "assetBundlePatterns": [
+      "*/"
+    ]
   }
 }

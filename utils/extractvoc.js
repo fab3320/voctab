@@ -1,7 +1,7 @@
 const fs = require('fs').promises;
 const xlsx = require('xlsx');
 
-const path_to_excel = "../base_voc/voc.xlsx";
+const path_to_excel = "../assets/base_voc/voc.html";
 
 const extract_flashcard = async () => {
     try {

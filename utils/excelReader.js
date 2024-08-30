@@ -2,7 +2,7 @@ const FileSystem = require('expo-file-system');
 const XLSX = require('xlsx');
 
 // Chemin vers le fichier Excel dans le dossier base_voc
-const path_to_excel = FileSystem.documentDirectory + 'base_voc/voc.xlsx';
+const path_to_excel = FileSystem.documentDirectory + 'base_voc/voc.html';
 
 const extract_flashcard = async () => {
     try {
