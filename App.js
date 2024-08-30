@@ -10,7 +10,7 @@ export default function App() {
     useEffect(() => {
         const fetchHeaders = async () => {
             try {
-                const asset = Asset.fromModule(require('./assets/base_voc/voc.html'));
+                const asset = Asset.fromModule(require('./assets/base_voc/voc.xlsx'));
                 await asset.downloadAsync();
                 const result = await extract_flashcard(asset);
                 setHeaders(result.headers.join(', ')); // Convertit les en-têtes en une chaîne lisible

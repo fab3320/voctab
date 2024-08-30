@@ -4,10 +4,10 @@ import { Asset } from 'expo-asset';
 
 /*const loadFile = async () => {
     // Assurez-vous que le fichier existe dans le dossier assets
-    const asset = Asset.fromModule(require('./assets/base_voc/voc.html'));
+    const asset = Asset.fromModule(require('./assets/base_voc/voc.xlsx'));
     await asset.downloadAsync(); // Téléchargez le fichier si ce n'est pas déjà fait
 
-    const fileUri = `${FileSystem.documentDirectory}voc.html`;
+    const fileUri = `${FileSystem.documentDirectory}voc.xlsx`;
 
     await FileSystem.copyAsync({
         from: asset.localUri || asset.uri,
