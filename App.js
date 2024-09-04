@@ -9,7 +9,7 @@ function DisplayFlashcard({langue1,langue2,flashcard}){
     const [traduction, setTraduction] = useState('');
     return(
         <View>
-            <Text>{flashcard[langue1]} : {flashcard[langue2]}</Text> {/*affiche les deux mots*/}
+            <Text>{flashcard[langue1]} : {flashcard[langue2]}</Text>
             <TextInput placeholder="Entrez la traduction" value={traduction} onChangeText={setTraduction}/>
             {traduction === flashcard[langue2] ? <Text>Bravo !</Text> : null}
         </View>
