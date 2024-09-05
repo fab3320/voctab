@@ -1,24 +1,50 @@
 import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import {StyleSheet, Text, TextInput, View} from 'react-native';
+import {StyleSheet, Text, TextInput, View, Button} from 'react-native';
 import {extract_flashcard} from './utils/extractvoc2.js';
 import { useAssets,Asset } from 'expo-asset';
 
-function DisplayFlashcard({langue1,langue2,flashcard}){
-    if(!flashcard) return null;
+
+function DisplayFlashcard({ langue1, langue2, flashcard, onNextQuestion }) {
     const [traduction, setTraduction] = useState('');
-    return(
+    const [isCorrect, setIsCorrect] = useState(false);
+
+    const verifyAnswer = () => {
+        console.log("Traduction entrée:", traduction);
+        console.log("Réponse attendue:", flashcard[langue2]);
+        setIsCorrect(traduction === flashcard[langue2]);
+        console.log("Résultat de la vérification:", traduction === flashcard[langue2]);
+    };
+
+    return (
         <View>
             <Text>{flashcard[langue1]} : {flashcard[langue2]}</Text>
-            <TextInput placeholder="Entrez la traduction" value={traduction} onChangeText={setTraduction}/>
-            {traduction === flashcard[langue2] ? <Text>Bravo !</Text> : null}
+            <TextInput 
+                placeholder="Entrez la traduction" 
+                value={traduction} 
+                onChangeText={setTraduction} 
+                style={styles.inputStyle}
+            />
+            <Button 
+                title={isCorrect ? "Question suivante" : "Vérifier"} 
+                onPress={isCorrect ? () => onNextQuestion(setIsCorrect, setTraduction) : verifyAnswer} 
+            />
+            {isCorrect && <Text>Bravo !</Text>}
         </View>
     );
+    
 }
+
+
 export default function App() {
-    const [headers, setHeaders] = useState('');
+    const [headers, setHeaders] = useState([]); // Initialisation comme tableau vide
     const [flashcards, setFlashcards] = useState([]);
-    const [currentFlashcard, setCurrentFlashcard] = useState(0); // 0 correspond au num de la ligne excell
+    // Ligne définie initialement à null (mais on va la changer aléatoirement + loin)
+    const [currentFlashcard, setCurrentFlashcard] = useState(null);
+    // Ici, chaque flashcard possède la structure suivante :
+    // {"langue1": 'mot1', "langue2": 'mot2', "index" : int}
+    // Ci-dessous, 'useEffect' est également un Hook de React. Elle est exécutée après le rendu de la page.
+    // En l'occurence, elle est utilisée pour charger les en-têtes et les flashcards depuis le fichier Excel.
     useEffect(() => {
         const fetchHeaders = async () => {
             try {
@@ -27,21 +53,47 @@ export default function App() {
                 const result = await extract_flashcard(asset);
                 setHeaders(result.headers);
                 setFlashcards(result.flashcards);
+                if(result.flashcards.length === 0) { // Contrôlons qu'il y a bien des flashcards
+                    console.error("Aucune flashcard trouvée !");
+                    return;
+                }
+                const randomLineNumber = Math.floor(Math.random() * result.flashcards.length);
+                setCurrentFlashcard(randomLineNumber); // Initialisation après chargement
             } catch (error) {
                 console.error("Erreur lors de l'extraction des en-têtes :", error);
             }
         };
-
         fetchHeaders();
     }, []);
-const flashcard = flashcards[currentFlashcard];
+
+
+    const nextFlashcard = (setIsCorrectFunc, setTraduction) => {
+        setIsCorrectFunc(false); // On réinitialise le statut de la réponse
+        setTraduction(''); // On réinitialise le texte de "consigne"
+        // si on est ici, cest que les flashcards ont déja été chargées, flashcards.length > 0
+        const randomLineNumber = Math.floor(Math.random() * flashcards.length);
+        setCurrentFlashcard(randomLineNumber);
+    };
+    
+    const flashcard = currentFlashcard !== null ? flashcards[currentFlashcard] : null;
+
     return (
         <View style={styles.container}>
-            <DisplayFlashcard langue1={headers[0]} langue2={headers[1]} flashcard={flashcard}/>
+            {flashcard && headers.length > 1 && (
+                <DisplayFlashcard 
+                    langue1={headers[0]} 
+                    langue2={headers[1]} 
+                    flashcard={flashcard} 
+                    onNextQuestion={nextFlashcard}
+                />
+            )}
             <StatusBar style="auto" />
         </View>
     );
 }
+
+
+
 
 const styles = StyleSheet.create({
     container: {
