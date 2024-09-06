@@ -8,17 +8,26 @@ import { useAssets,Asset } from 'expo-asset';
 function DisplayFlashcard({ langue1, langue2, flashcard, onNextQuestion, otherLangue, displayedLangue }) {
     const [traduction, setTraduction] = useState('');
     const [isCorrect, setIsCorrect] = useState(false);
+    const [compteur, setCompteur] = useState(0);
+    const [skipflashcard, setSkipFlashcard] = useState('');
 
     const verifyAnswer = () => {
         console.log("Traduction entrée:", traduction);
         console.log("Réponse attendue:", flashcard[otherLangue]);
-        setIsCorrect(traduction.toLowerCase() === flashcard[otherLangue]).toLowerCase();
-        console.log("Résultat de la vérification:", traduction.toLowerCase() === flashcard[otherLangue]).toLowerCase();
+        setIsCorrect(traduction === flashcard[otherLangue]);
+        const correct = traduction === flashcard[otherLangue]
+        if (correct) {
+            setCompteur(compteur + 1);
+            onNextQuestion(setIsCorrect, setTraduction);
+        }
+        console.log("Résultat de la vérification:", traduction === flashcard[otherLangue]);
     };
     return (
         <View>
+            {skipflashcard !== '' && <Text>{skipflashcard}</Text>}
+            <Text>Compteur de bonnes réponses : {compteur}</Text>
             <Text>{displayedLangue} : {flashcard[displayedLangue]}</Text>
-            <Text>{otherLangue} : "????"</Text>
+            <Text>{otherLangue} : "??__??"</Text>
 
             <Text>"la réponse est : {flashcard[otherLangue]}"</Text>
             <TextInput
@@ -31,7 +40,17 @@ function DisplayFlashcard({ langue1, langue2, flashcard, onNextQuestion, otherLa
                 title={isCorrect ? "Question suivante" : "Vérifier"}
                 onPress={isCorrect ? () => onNextQuestion(setIsCorrect, setTraduction) : verifyAnswer}
             />
+
+            <Button
+                title="Passer"
+                onPress={() => {
+                    setSkipFlashcard(`réponse du dernier mot passé ==> ${flashcard[displayedLangue]} : ${flashcard[otherLangue]}`);
+                    onNextQuestion(setIsCorrect, setTraduction); // On passe à la question suivante
+                }}
+
+            />
             {isCorrect && <Text>Bravo !</Text>}
+
         </View>
     );
 
@@ -88,6 +107,8 @@ export default function App() {
         const randomLineNumber = Math.floor(Math.random() * flashcards.length);
         setCurrentFlashcard(randomLineNumber);
     };
+
+
 
     const flashcard = currentFlashcard !== null ? flashcards[currentFlashcard] : null;
 
