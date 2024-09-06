@@ -5,7 +5,7 @@ import {extract_flashcard} from './utils/extractvoc2.js';
 import { useAssets,Asset } from 'expo-asset';
 
 
-function DisplayFlashcard({ langue1, langue2, flashcard, onNextQuestion, otherLangue, displayedLangue }) {
+function DisplayFlashcard({ langue1, langue2, flashcard, onNextQuestion, otherLangue, displayedLangue,forceLangue, setForceLangue}){
     const [traduction, setTraduction] = useState('');
     const [isCorrect, setIsCorrect] = useState(false);
     const [compteur, setCompteur] = useState(0);
@@ -49,6 +49,22 @@ function DisplayFlashcard({ langue1, langue2, flashcard, onNextQuestion, otherLa
                 }}
 
             />
+            <Button
+                title={
+                    forceLangue === '0'
+                        ? `testé en aléatoire`
+                        : forceLangue === '1'
+                            ? `testé en ${langue2} => ${langue1}`
+                            : `testé en ${langue1} => ${langue2}`
+                }
+                onPress={() => {
+                    // Alterner entre les trois états : '0', '1', et '2'
+                    const newForceLangue =
+                        forceLangue === '0' ? '1' : forceLangue === '1' ? '2' : '0';
+                    setForceLangue(newForceLangue);
+                    onNextQuestion(setIsCorrect, setTraduction); // Actualise la question avec la nouvelle valeur
+                }}
+            />
             {isCorrect && <Text>Bravo !</Text>}
 
         </View>
@@ -65,6 +81,8 @@ export default function App() {
     //Ici,j'affiche la langue 1 par défaut
     const [displayedLangue, setDisplayedLangue] = useState('langue1');
     const [otherLangue, setOtherLangue] = useState('langue2')
+    const [forceLangue, setForceLangue] = useState('0');
+
     // Ici, chaque flashcard possède la structure suivante :
     // {"langue1": 'mot1', "langue2": 'mot2', "index" : int}
     // Ci-dessous, 'useEffect' est également un Hook de React. Elle est exécutée après le rendu de la page.
@@ -82,10 +100,19 @@ export default function App() {
                     return;
                 }
                 const randomLineNumber = Math.floor(Math.random() * result.flashcards.length);
+                if (forceLangue === '0') {
                 const randomLangue = Math.random() <0.5 ? result.headers[0] : result.headers[1];
                 const otherLangue = randomLangue === result.headers[0] ? result.headers[1] : result.headers[0];
                 setDisplayedLangue(randomLangue); // Initialisation aléatoire de la langue affichée
                 setOtherLangue(otherLangue); // Initialisation de la langue de la traduction
+                } else if (forceLangue === '1') {
+                    setDisplayedLangue(result.headers[0]);
+                    setOtherLangue(result.headers[1]);
+                }
+                else if (forceLangue === '2') {
+                    setDisplayedLangue(result.headers[1]);
+                    setOtherLangue(result.headers[0]);
+                }
 
                 setCurrentFlashcard(randomLineNumber); // Initialisation après chargement
             } catch (error) {
@@ -99,10 +126,19 @@ export default function App() {
     const nextFlashcard = (setIsCorrectFunc, setTraduction) => {
         setIsCorrectFunc(false); // On réinitialise le statut de la réponse
         setTraduction(''); // On réinitialise le texte de "consigne"
-        const randomLangue = Math.random() <0.5 ? headers[0] : headers[1];
-        const otherLangue = randomLangue === headers[0] ? headers[1] : headers[0];
-        setDisplayedLangue(randomLangue); // On change la langue affichée
-        setOtherLangue(otherLangue); // On change la langue de la traduction (autre langue que celle affichée
+        if (forceLangue === '0') {
+            const randomLangue = Math.random() <0.5 ? headers[0] : headers[1];
+            const otherLangue = randomLangue === headers[0] ? headers[1] : headers[0];
+            setDisplayedLangue(randomLangue); // On change la langue affichée
+            setOtherLangue(otherLangue); // On change la langue de la traduction (autre langue que celle affichée
+        } else if (forceLangue === '1') {
+            setDisplayedLangue(headers[0]);
+            setOtherLangue(headers[1]);
+        } else if (forceLangue === '2') {
+            setDisplayedLangue(headers[1]);
+            setOtherLangue(headers[0]);
+        }
+
         // si on est ici, cest que les flashcards ont déja été chargées, flashcards.length > 0
         const randomLineNumber = Math.floor(Math.random() * flashcards.length);
         setCurrentFlashcard(randomLineNumber);
@@ -122,6 +158,8 @@ export default function App() {
                     onNextQuestion={nextFlashcard}
                     otherLangue={otherLangue}
                     displayedLangue={displayedLangue}
+                    forceLangue={forceLangue}
+                    setForceLangue={setForceLangue}
                 />
             )}
             <StatusBar style="auto" />
