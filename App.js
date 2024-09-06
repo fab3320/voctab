@@ -12,13 +12,15 @@ function DisplayFlashcard({ langue1, langue2, flashcard, onNextQuestion, otherLa
     const verifyAnswer = () => {
         console.log("Traduction entrée:", traduction);
         console.log("Réponse attendue:", flashcard[otherLangue]);
-        setIsCorrect(traduction === flashcard[otherLangue]);
-        console.log("Résultat de la vérification:", traduction === flashcard[otherLangue]);
+        setIsCorrect(traduction.toLowerCase() === flashcard[otherLangue]).toLowerCase();
+        console.log("Résultat de la vérification:", traduction.toLowerCase() === flashcard[otherLangue]).toLowerCase();
     };
-
     return (
         <View>
-            <Text>{displayedLangue} : {otherLangue}</Text>
+            <Text>{displayedLangue} : {flashcard[displayedLangue]}</Text>
+            <Text>{otherLangue} : "????"</Text>
+
+            <Text>"la réponse est : {flashcard[otherLangue]}"</Text>
             <TextInput
                 placeholder={`Entrez la traduction en ${otherLangue}`}
                 value={traduction}
@@ -97,8 +99,8 @@ export default function App() {
                     langue2={headers[1]}
                     flashcard={flashcard}
                     onNextQuestion={nextFlashcard}
-                    otherLangue={flashcard[otherLangue]}
-                    displayedLangue={flashcard[displayedLangue]}
+                    otherLangue={otherLangue}
+                    displayedLangue={displayedLangue}
                 />
             )}
             <StatusBar style="auto" />
