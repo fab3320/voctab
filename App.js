@@ -26,11 +26,18 @@ function DisplayFlashcard({
         console.log("Traduction entrée:", traduction);
         console.log("Réponse attendue:", flashcard[otherLangue]);
         setIsCorrect(traduction === flashcard[otherLangue]);
-        const correct = traduction === flashcard[otherLangue]
-        if (correct) {
+        const tradLower = traduction.toLowerCase();
+        const correctLower = flashcard[otherLangue].toLowerCase();
+        // const correct = traduction === flashcard[otherLangue]
+        console.log("Traduction entrée en minuscules:", tradLower);
+        console.log("Réponse attendue en minuscules:", correctLower);
+        if (tradLower === correctLower) {
+            console.log("Réponse correcte");
             setCompteur(compteur + 1);
         }
-        console.log("Résultat de la vérification:", traduction === flashcard[otherLangue]);
+        else{ //bonus : faire réagir l'appli si la réponse est fausse
+            console.log("Réponse incorrecte");
+        }
     };
     return (
         <View>
