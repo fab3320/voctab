@@ -34,7 +34,7 @@ function DisplayFlashcard({
     };
     return (
         <View>
-            {skipflashcard !== '' && <Text>{skipflashcard}</Text>}
+
             <Text>Compteur de bonnes réponses : {compteur}</Text>
             <Text>{displayedLangue} : {flashcard[displayedLangue]}</Text>
             <Text>{otherLangue} : "??__??"</Text>
@@ -55,14 +55,7 @@ function DisplayFlashcard({
                 onPress={isCorrect ? nextFlashcard : verifyAnswer}
             />
 
-            <Button
-                title="Passer"
-                onPress={() => {
-                    setSkipFlashcard(`réponse du dernier mot passé ==> ${flashcard[displayedLangue]} : ${flashcard[otherLangue]}`);
-                    nextFlashcard(); // On passe à la question suivante
-                }}
 
-            />
         </View>
     );
 
@@ -78,6 +71,7 @@ export default function App() {
     const [displayedLangue, setDisplayedLangue] = useState('langue1');
     const [otherLangue, setOtherLangue] = useState('langue2')
     const [forceLangue, setForceLangue] = useState('2');
+    const [skipflashcard, setSkipFlashcard] = useState('');
 
 
     const randomizeFlashcardsOrder = () => {
@@ -136,14 +130,8 @@ export default function App() {
 
     return (
         <View style={styles.container}>
-            {flashcard && displayedLangue && (
-                <DisplayFlashcard
-                    flashcard={flashcard}
-                    nextFlashcard={nextFlashcard}
-                    displayedLangue={displayedLangue}
-                    otherLangue={otherLangue}
-                />
-            )}
+            <Text style={{ color: '#5b33d9', fontWeight: 'bold', fontSize: 40, marginBottom: 15 }}>Voc<Text style={{ color: '#7da982', fontWeight: 'bold', fontSize: 40 }}>Tab</Text></Text>
+
             <Button
                 title={
                     forceLangue === 'random'
@@ -161,6 +149,18 @@ export default function App() {
                     setCurrentFlashcard(0)
                 }}
             />
+
+            <View style={styles.cadre}>
+
+            {flashcard && displayedLangue && (
+                <DisplayFlashcard
+                    flashcard={flashcard}
+                    nextFlashcard={nextFlashcard}
+                    displayedLangue={displayedLangue}
+                    otherLangue={otherLangue}
+                />
+            )}
+
             { currentFlashcard < flashcards.length ?
                 <Text>{currentFlashcard + 1} / {flashcards.length}</Text> :
                 <><Text>Fin des flashcards</Text>
@@ -176,6 +176,28 @@ export default function App() {
 
             <StatusBar style="auto"/>
         </View>
+            <Button
+                title="Passer"
+                onPress={() => {
+                    setSkipFlashcard(`Flashcard passée ==> ${flashcard[displayedLangue]} : ${flashcard[otherLangue]}`);
+                    nextFlashcard(); // On passe à la question suivante
+                }}
+
+            />
+            {skipflashcard !== '' && (
+                <View style={styles.cadrepasser}>
+                    <Text style={{ color: '#5b33d9', fontStyle: 'italic', fontSize: 20, marginTop: 0 }}>
+                        {skipflashcard}
+                    </Text>
+                    <Button
+                        title="masquer"
+                        onPress={() => {
+                            setSkipFlashcard('');
+                        }}
+                    />
+                </View>
+            )}
+        </View>
     );
 }
 
@@ -183,10 +205,44 @@ export default function App() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
+        backgroundColor: '#c4c4c4',
         alignItems: 'center',
         justifyContent: 'center',
         padding: 20,
+    },
+    cadre: {
+        width: '90%', // Largeur du cadre
+        height: '50%', //hauteur du cadre
+        padding: 20, // Espacement interne
+        borderWidth: 4, // Épaisseur de la bordure
+        borderColor: '#90e797', // Couleur de la bordure
+        borderRadius: 10, // Coins arrondis
+        backgroundColor: '#7e7d7d', // Couleur de fond
+        shadowColor: '#000', // Couleur de l'ombre
+        shadowOffset: { width: 0, height: 2 }, // Décalage de l'ombre
+        shadowOpacity: 0.2, // Opacité de l'ombre
+        shadowRadius: 4, // Rayon de l'ombre
+        elevation: 5, // Pour Android : élévation pour l'ombre
+        alignItems: 'center', // Centrer le contenu horizontalement
+        justifyContent: 'center', // Centrer le contenu verticalement
+        marginVertical: 20,
+    },
+    cadrepasser: {
+        width: '90%', // Largeur du cadre
+        height: '15%', //hauteur du cadre
+        padding: 20, // Espacement interne
+        borderWidth: 5, // Épaisseur de la bordure
+        borderColor: '#90e797', // Couleur de la bordure
+        borderRadius: 10, // Coins arrondis
+        backgroundColor: '#7e7d7d', // Couleur de fond
+        shadowColor: '#000', // Couleur de l'ombre
+        shadowOffset: { width: 0, height: 2 }, // Décalage de l'ombre
+        shadowOpacity: 0.2, // Opacité de l'ombre
+        shadowRadius: 4, // Rayon de l'ombre
+        elevation: 5, // Pour Android : élévation pour l'ombre
+        alignItems: 'center', // Centrer le contenu horizontalement
+        justifyContent: 'center', // Centrer le contenu verticalement
+        marginVertical: 20,
     },
 });
 

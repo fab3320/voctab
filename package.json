@@ -13,10 +13,12 @@
     "expo": "~51.0.28",
     "expo-asset": "~10.0.10",
     "expo-file-system": "~17.0.1",
+    "expo-linear-gradient": "~13.0.2",
     "expo-status-bar": "~1.12.1",
     "lodash": "^4.17.21",
     "react": "18.2.0",
     "react-native": "0.74.5",
+    "react-native-paper": "^5.12.5",
     "typescript": "~5.3.3",
     "xlsx": "https://cdn.sheetjs.com/xlsx-latest/xlsx-latest.tgz"
   },
