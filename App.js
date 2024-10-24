@@ -4,6 +4,7 @@ import {StyleSheet, Text, TextInput, View, Button} from 'react-native';
 import {extract_flashcard} from './utils/extractvoc2.js';
 import {useAssets, Asset} from 'expo-asset';
 import _ from "lodash";
+import * as Animatable from 'react-native-animatable';
 
 
 function DisplayFlashcard({
@@ -16,6 +17,7 @@ function DisplayFlashcard({
     const [isCorrect, setIsCorrect] = useState(false);
     const [compteur, setCompteur] = useState(0);
     const [skipflashcard, setSkipFlashcard] = useState('');
+    const [hideAnimation, setHideAnimation] = useState(false);
 
     useEffect(() => {
         setTraduction(''); // On réinitialise la traduction
@@ -72,6 +74,7 @@ export default function App() {
     const [otherLangue, setOtherLangue] = useState('langue2')
     const [forceLangue, setForceLangue] = useState('2');
     const [skipflashcard, setSkipFlashcard] = useState('');
+    const [hideAnimation, setHideAnimation] = useState(false); // État pour gérer l'animation
 
 
     const randomizeFlashcardsOrder = () => {
@@ -80,6 +83,7 @@ export default function App() {
 
     const nextFlashcard = () => {
         console.log('nextFlashcard', headers)
+        setHideAnimation(false);
         if (forceLangue === 'random') {
             const randomLangue = Math.random() < 0.5 ? headers[0] : headers[1];
             const otherLangue = randomLangue === headers[0] ? headers[1] : headers[0];
@@ -185,19 +189,29 @@ export default function App() {
 
             />
             {skipflashcard !== '' && (
-                <View style={styles.cadrepasser}>
+                <Animatable.View
+                    animation={hideAnimation ? "bounceOut" : undefined}
+                    duration={600}
+                    onAnimationEnd={() => {
+                        if (hideAnimation) setSkipFlashcard(''); // Masquer le cadre après l'animation
+                    }}
+                    style={styles.cadrepasser}
+                >
                     <Text style={{ color: '#5b33d9', fontStyle: 'italic', fontSize: 20, marginTop: 0 }}>
                         {skipflashcard}
                     </Text>
                     <Button
                         title="masquer"
                         onPress={() => {
-                            setSkipFlashcard('');
+                            setHideAnimation(true); // Déclencher l'animation
+
                         }}
                     />
-                </View>
+                </Animatable.View>
             )}
         </View>
+
+
     );
 }
 
