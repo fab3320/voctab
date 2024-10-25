@@ -18,36 +18,49 @@ function DisplayFlashcard({
     const [compteur, setCompteur] = useState(0);
     const [skipflashcard, setSkipFlashcard] = useState('');
     const [hideAnimation, setHideAnimation] = useState(false);
+    const [animationType, setAnimationType] = useState('fadeIn'); // Ajouter l'animation
+    const [animationKey, setAnimationKey] = useState(0); // Utilisé pour relancer l'animation
 
     useEffect(() => {
         setTraduction(''); // On réinitialise la traduction
         setIsCorrect(false); // On réinitialise le statut de la réponse
+        setAnimationKey(prevKey => prevKey + 1); // Changer la clé pour relancer l'animation
     }, [flashcard, displayedLangue, otherLangue]);
 
     const verifyAnswer = () => {
         console.log("Traduction entrée:", traduction);
         console.log("Réponse attendue:", flashcard[otherLangue]);
-        setIsCorrect(traduction === flashcard[otherLangue]);
-        const correct = traduction === flashcard[otherLangue]
-        if (correct) {
+
+        // Comparer les réponses en minuscules
+        const isCorrectAnswer = traduction.toLowerCase() === flashcard[otherLangue].toLowerCase();
+
+        setIsCorrect(isCorrectAnswer);
+
+        if (isCorrectAnswer) {
             setCompteur(compteur + 1);
         }
-        console.log("Résultat de la vérification:", traduction === flashcard[otherLangue]);
+        console.log("Résultat de la vérification:", isCorrectAnswer);
     };
     return (
-        <View>
-
+        <Animatable.View
+            key={animationKey} // Clé unique pour relancer l'animation à chaque flashcard
+            animation={animationType} // Type d'animation (tu peux le changer dynamiquement)
+            duration={1500} // Durée de l'animation
+            style={{ marginBottom: 20 }} // Style d'animation
+        >
             <Text>Compteur de bonnes réponses : {compteur}</Text>
             <Text>{displayedLangue} : {flashcard[displayedLangue]}</Text>
             <Text>{otherLangue} : "??__??"</Text>
 
-            <Text style={{fontStyle: "italic", fontWeight: "100"}}>(temporaire: "la réponse est
-                : {flashcard[otherLangue]}")</Text>
+            <Text style={{ fontStyle: "italic", fontWeight: "100" }}>
+                (temporaire: "la réponse est : {flashcard[otherLangue]}")
+            </Text>
+
             <TextInput
                 placeholder={`Entrez la traduction en ${otherLangue}`}
                 value={traduction}
                 onChangeText={setTraduction}
-                style={styles.inputStyle}
+                style={{ borderBottomWidth: 1, marginVertical: 10, padding: 5 }}
             />
 
             {isCorrect && <Text>Bravo !</Text>}
@@ -56,9 +69,7 @@ function DisplayFlashcard({
                 title={isCorrect ? "Question suivante" : "Vérifier"}
                 onPress={isCorrect ? nextFlashcard : verifyAnswer}
             />
-
-
-        </View>
+        </Animatable.View>
     );
 
 }
@@ -75,7 +86,7 @@ export default function App() {
     const [forceLangue, setForceLangue] = useState('2');
     const [skipflashcard, setSkipFlashcard] = useState('');
     const [hideAnimation, setHideAnimation] = useState(false); // État pour gérer l'animation
-
+    const [animationKey, setAnimationKey] = useState(0); // Clé pour relancer l
 
     const randomizeFlashcardsOrder = () => {
         flashcards = _.shuffle(flashcards);
@@ -184,17 +195,16 @@ export default function App() {
                 title="Passer"
                 onPress={() => {
                     setSkipFlashcard(`Flashcard passée ==> ${flashcard[displayedLangue]} : ${flashcard[otherLangue]}`);
-                    nextFlashcard(); // On passe à la question suivante
+                    setAnimationKey(prev => prev + 1); // Changer la clé pour relancer l'animation
+                    nextFlashcard();
                 }}
-
             />
+
             {skipflashcard !== '' && (
                 <Animatable.View
-                    animation={hideAnimation ? "bounceOut" : undefined}
+                    key={animationKey} // Clé unique pour relancer l'animation à chaque changement
+                    animation="fadeIn" // Animation "fadeIn"
                     duration={600}
-                    onAnimationEnd={() => {
-                        if (hideAnimation) setSkipFlashcard(''); // Masquer le cadre après l'animation
-                    }}
                     style={styles.cadrepasser}
                 >
                     <Text style={{ color: '#5b33d9', fontStyle: 'italic', fontSize: 20, marginTop: 0 }}>
@@ -203,15 +213,12 @@ export default function App() {
                     <Button
                         title="masquer"
                         onPress={() => {
-                            setHideAnimation(true); // Déclencher l'animation
-
+                            setSkipFlashcard(''); // Masquer le cadre
                         }}
                     />
                 </Animatable.View>
             )}
         </View>
-
-
     );
 }
 
