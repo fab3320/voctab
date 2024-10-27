@@ -1,78 +1,12 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useEffect, useState} from 'react';
 import {StatusBar} from 'expo-status-bar';
-import {StyleSheet, Text, TextInput, View, Button} from 'react-native';
+import {Button, StyleSheet, Text, View} from 'react-native';
 import {extract_flashcard} from './utils/extractvoc2.js';
-import {useAssets, Asset} from 'expo-asset';
+import {Asset} from 'expo-asset';
 import _ from "lodash";
 import * as Animatable from 'react-native-animatable';
+import {DisplayFlashcard} from "./DisplayFlashcard";
 
-
-function DisplayFlashcard({
-                              flashcard,
-                              nextFlashcard,
-                              otherLangue,
-                              displayedLangue,
-                          }) {
-    const [traduction, setTraduction] = useState('');
-    const [isCorrect, setIsCorrect] = useState(false);
-    const [compteur, setCompteur] = useState(0);
-    const [skipflashcard, setSkipFlashcard] = useState('');
-    const [hideAnimation, setHideAnimation] = useState(false);
-    const [animationType, setAnimationType] = useState('fadeIn'); // Ajouter l'animation
-    const [animationKey, setAnimationKey] = useState(0); // Utilisé pour relancer l'animation
-
-    useEffect(() => {
-        setTraduction(''); // On réinitialise la traduction
-        setIsCorrect(false); // On réinitialise le statut de la réponse
-        setAnimationKey(prevKey => prevKey + 1); // Changer la clé pour relancer l'animation
-    }, [flashcard, displayedLangue, otherLangue]);
-
-    const verifyAnswer = () => {
-        console.log("Traduction entrée:", traduction);
-        console.log("Réponse attendue:", flashcard[otherLangue]);
-
-        // Comparer les réponses en minuscules
-        const isCorrectAnswer = traduction.toLowerCase() === flashcard[otherLangue].toLowerCase();
-
-        setIsCorrect(isCorrectAnswer);
-
-        if (isCorrectAnswer) {
-            setCompteur(compteur + 1);
-        }
-        console.log("Résultat de la vérification:", isCorrectAnswer);
-    };
-    return (
-        <Animatable.View
-            key={animationKey} // Clé unique pour relancer l'animation à chaque flashcard
-            animation={animationType} // Type d'animation (tu peux le changer dynamiquement)
-            duration={1500} // Durée de l'animation
-            style={{ marginBottom: 20 }} // Style d'animation
-        >
-            <Text>Compteur de bonnes réponses : {compteur}</Text>
-            <Text>{displayedLangue} : {flashcard[displayedLangue]}</Text>
-            <Text>{otherLangue} : "??__??"</Text>
-
-            <Text style={{ fontStyle: "italic", fontWeight: "100" }}>
-                (temporaire: "la réponse est : {flashcard[otherLangue]}")
-            </Text>
-
-            <TextInput
-                placeholder={`Entrez la traduction en ${otherLangue}`}
-                value={traduction}
-                onChangeText={setTraduction}
-                style={{ borderBottomWidth: 1, marginVertical: 10, padding: 5 }}
-            />
-
-            {isCorrect && <Text>Bravo !</Text>}
-
-            <Button
-                title={isCorrect ? "Question suivante" : "Vérifier"}
-                onPress={isCorrect ? nextFlashcard : verifyAnswer}
-            />
-        </Animatable.View>
-    );
-
-}
 
 let headers = [];
 let flashcards = [];
@@ -87,7 +21,7 @@ export default function App() {
     const [skipflashcard, setSkipFlashcard] = useState('');
     const [hideAnimation, setHideAnimation] = useState(false); // État pour gérer l'animation
     const [animationKey, setAnimationKey] = useState(0); // Clé pour relancer l
-
+    const [compteur, setCompteur] = useState(0);
     const randomizeFlashcardsOrder = () => {
         flashcards = _.shuffle(flashcards);
     }
@@ -145,7 +79,8 @@ export default function App() {
 
     return (
         <View style={styles.container}>
-            <Text style={{ color: '#5b33d9', fontWeight: 'bold', fontSize: 40, marginBottom: 15 }}>Voc<Text style={{ color: '#7da982', fontWeight: 'bold', fontSize: 40 }}>Tab</Text></Text>
+            <Text style={{color: '#5b33d9', fontWeight: 'bold', fontSize: 40, marginBottom: 15}}>Voc<Text
+                style={{color: '#7da982'}}>Tab</Text></Text>
 
             <Button
                 title={
@@ -162,52 +97,60 @@ export default function App() {
                     setForceLangue(newForceLangue);
                     randomizeFlashcardsOrder()
                     setCurrentFlashcard(0)
+                    setCompteur(0)
                 }}
             />
 
             <View style={styles.cadre}>
 
-            {flashcard && displayedLangue && (
-                <DisplayFlashcard
-                    flashcard={flashcard}
-                    nextFlashcard={nextFlashcard}
-                    displayedLangue={displayedLangue}
-                    otherLangue={otherLangue}
-                />
-            )}
-
-            { currentFlashcard < flashcards.length ?
-                <Text>{currentFlashcard + 1} / {flashcards.length}</Text> :
-                <><Text>Fin des flashcards</Text>
-                    <Button
-                        title="Recommencer"
-                        onPress={() => {
-                            randomizeFlashcardsOrder()
-                            setCurrentFlashcard(0)
-                        }}
+                {flashcard && displayedLangue && (
+                    <DisplayFlashcard
+                        flashcard={flashcard}
+                        nextFlashcard={nextFlashcard}
+                        displayedLangue={displayedLangue}
+                        otherLangue={otherLangue}
+                        compteur={compteur}
+                        setCompteur={setCompteur}
                     />
-                </>
-            }
+                )}
 
-            <StatusBar style="auto"/>
-        </View>
-            <Button
-                title="Passer"
-                onPress={() => {
-                    setSkipFlashcard(`Flashcard passée ==> ${flashcard[displayedLangue]} : ${flashcard[otherLangue]}`);
-                    setAnimationKey(prev => prev + 1); // Changer la clé pour relancer l'animation
-                    nextFlashcard();
-                }}
-            />
+                {currentFlashcard < flashcards.length ?
+                    <Text>{currentFlashcard + 1} / {flashcards.length}</Text> :
+                    <><Text style={{marginVertical: 20, fontWeight: 'bold', fontSize: 30, color: '#5b33d9'}}>Fin des
+                        flashcards {"\n"}Score
+                        final: {compteur} / {flashcards.length}</Text>
+                        <Button
+                            title="Recommencer"
+                            onPress={() => {
+                                randomizeFlashcardsOrder()
+                                setCurrentFlashcard(0)
+                                setCompteur(0)
+                            }}
+                        />
+                    </>
+                }
+
+                <StatusBar style="auto"/>
+            </View>
+            {currentFlashcard < flashcards.length ?
+                <Button
+                    title="Passer"
+                    onPress={() => {
+                        setSkipFlashcard(`Flashcard passée ==> ${flashcard[displayedLangue]} : ${flashcard[otherLangue]}`);
+                        setAnimationKey(prev => prev + 1); // Changer la clé pour relancer l'animation
+                        nextFlashcard();
+                    }}
+                /> : null
+            }
 
             {skipflashcard !== '' && (
                 <Animatable.View
                     key={animationKey} // Clé unique pour relancer l'animation à chaque changement
                     animation="fadeIn" // Animation "fadeIn"
-                    duration={600}
+                    duration={1500}
                     style={styles.cadrepasser}
                 >
-                    <Text style={{ color: '#5b33d9', fontStyle: 'italic', fontSize: 20, marginTop: 0 }}>
+                    <Text style={{color: '#5b33d9', fontStyle: 'italic', fontSize: 20, marginTop: 0}}>
                         {skipflashcard}
                     </Text>
                     <Button
@@ -228,19 +171,19 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#c4c4c4',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'top',
         padding: 20,
+        marginTop: 50,
     },
     cadre: {
         width: '90%', // Largeur du cadre
-        height: '50%', //hauteur du cadre
         padding: 20, // Espacement interne
         borderWidth: 4, // Épaisseur de la bordure
         borderColor: '#90e797', // Couleur de la bordure
         borderRadius: 10, // Coins arrondis
         backgroundColor: '#7e7d7d', // Couleur de fond
         shadowColor: '#000', // Couleur de l'ombre
-        shadowOffset: { width: 0, height: 2 }, // Décalage de l'ombre
+        shadowOffset: {width: 0, height: 2}, // Décalage de l'ombre
         shadowOpacity: 0.2, // Opacité de l'ombre
         shadowRadius: 4, // Rayon de l'ombre
         elevation: 5, // Pour Android : élévation pour l'ombre
@@ -250,14 +193,13 @@ const styles = StyleSheet.create({
     },
     cadrepasser: {
         width: '90%', // Largeur du cadre
-        height: '15%', //hauteur du cadre
         padding: 20, // Espacement interne
         borderWidth: 5, // Épaisseur de la bordure
         borderColor: '#90e797', // Couleur de la bordure
         borderRadius: 10, // Coins arrondis
         backgroundColor: '#7e7d7d', // Couleur de fond
         shadowColor: '#000', // Couleur de l'ombre
-        shadowOffset: { width: 0, height: 2 }, // Décalage de l'ombre
+        shadowOffset: {width: 0, height: 2}, // Décalage de l'ombre
         shadowOpacity: 0.2, // Opacité de l'ombre
         shadowRadius: 4, // Rayon de l'ombre
         elevation: 5, // Pour Android : élévation pour l'ombre
