@@ -1,6 +1,5 @@
 import * as FileSystem from 'expo-file-system'; // Gardez seulement cette importation
 import * as xlsx from 'xlsx';
-import { Asset } from 'expo-asset';
 
 /*const loadFile = async () => {
     // Assurez-vous que le fichier existe dans le dossier assets
